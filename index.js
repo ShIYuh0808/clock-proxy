@@ -1,9 +1,16 @@
 import express from "express";
 import fetch from "node-fetch";
+import https from "https";
 
 const app = express();
 app.use(express.json());
 
+// 🔥 忽略自簽憑證（關鍵）
+const agent = new https.Agent({
+  rejectUnauthorized: false
+});
+
+// 打卡
 app.post("/clock", async (req, res) => {
   try {
     const response = await fetch("https://220.135.96.155:8443/api/v1/mobile/attendance/clock", {
@@ -12,7 +19,8 @@ app.post("/clock", async (req, res) => {
         "Authorization": req.headers.authorization,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(req.body)
+      body: JSON.stringify(req.body),
+      agent
     });
 
     const data = await response.json();
@@ -22,6 +30,7 @@ app.post("/clock", async (req, res) => {
   }
 });
 
+// 登入
 app.post("/login", async (req, res) => {
   try {
     const response = await fetch("https://220.135.96.155:8443/api/v1/auth/login", {
@@ -29,7 +38,8 @@ app.post("/login", async (req, res) => {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(req.body)
+      body: JSON.stringify(req.body),
+      agent
     });
 
     const data = await response.json();
